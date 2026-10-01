@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Flare Drop · Staff Dashboard</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <style>
+    html {
+      background: #2b1535 url('/bg-desktop.jpg') center / cover no-repeat fixed !important;
+      min-height: 100%;
+    }
+    body {
+      background: transparent !important;
+    }
+    body::before, body::after {
+      opacity: 0.25 !important;
+    }
+  </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <div id="gate" class="gate">
+    <div class="gate-card">
+      <img class="logo" src="/logo.png" alt="Flare" />
+      <h1>Flare Drop</h1>
+      <p class="muted">Staff dashboard · Discord login required</p>
+      <a class="btn primary" href="/auth/login">Login with Discord</a>
+      <p id="gateErr" class="err"></p>
+    </div>
+  </div>
+
+  <div id="app" class="app hidden">
+    <header class="topbar">
+      <button type="button" id="menuBtn" class="icon-btn" aria-label="Menu">☰</button>
+      <div class="topbar-title">Flare Drop</div>
+      <div id="topStatus" class="top-status">…</div>
+    </header>
+
+    <aside id="sidebar" class="sidebar">
+      <div class="sidebar-brand">
+        <img src="/logo.png" alt="" class="logo-sm" />
+        <div>
+          <strong>Flare Drop</strong>
+          <span class="muted" id="sideUser">—</span>
+        </div>
+      </div>
+      <nav class="side-nav">
+        <button type="button" data-tab="overview" class="nav-item active">Overview</button>
+        <button type="button" data-tab="stock" class="nav-item">Pay stock</button>
+        <button type="button" data-tab="gen" class="nav-item">Gen stock</button>
+        <button type="button" data-tab="methods" class="nav-item">Methods</button>
+        <button type="button" data-tab="giveaways" class="nav-item">Giveaways</button>
+        <button type="button" data-tab="warnings" class="nav-item">Warnings</button>
+        <button type="button" data-tab="economy" class="nav-item">Economy</button>
+        <button type="button" data-tab="protection" class="nav-item">Protection</button>
+        <button type="button" data-tab="invites" class="nav-item">Invites</button>
+        <button type="button" data-tab="moderation" class="nav-item">Moderation</button>
+        <button type="button" data-tab="settings" class="nav-item">Settings</button>
+      </nav>
+      <a class="btn ghost logout" href="/auth/logout">Logout</a>
+    </aside>
+    <div id="scrim" class="scrim hidden"></div>
+
+    <main class="main">
+      <section id="tab-overview" class="panel">
+        <h2>Overview</h2>
+        <div class="stat-grid" id="overviewStats"></div>
+        <p class="hint">Quick snapshot of live bot data. Use the menu for full tools.</p>
+      </section>
+
+      <section id="tab-stock" class="panel hidden">
+        <h2>Pay stock</h2>
+        <div class="toolbar">
+          <button type="button" class="btn" id="btnStock">Refresh</button>
+        </div>
+        <div class="card-grid" id="stockOut"></div>
+        <div class="card form-card">
+          <h3>Add pay stock</h3>
+          <label>Product</label>
+          <select id="payProd">
+            <option value="mcfa">mcfa</option>
+            <option value="nitro">nitro</option>
+            <option value="netflix">netflix</option>
+            <option value="crunchyroll">crunchyroll</option>
+            <option value="steam">steam</option>
+          </select>
+          <label>Lines (one account per line)</label>
+          <textarea id="payLines" rows="5" placeholder="email:pass"></textarea>
+          <button type="button" class="btn primary" id="btnPayAdd">Add to pay stock</button>
+          <p id="payMsg"></p>
+        </div>
+      </section>
+
+      <section id="tab-gen" class="panel hidden">
+        <h2>Gen stock</h2>
+        <div class="toolbar">
+          <button type="button" class="btn" id="btnGenRefresh">Refresh</button>
+        </div>
+        <div class="card-grid" id="genOut"></div>
+        <div class="card form-card">
+          <h3>Add gen stock</h3>
+          <label>Product</label>
+          <select id="genProd">
+            <option value="mcfa">mcfa</option>
+            <option value="nitro">nitro</option>
+            <option value="netflix">netflix</option>
+            <option value="steam">steam</option>
+            <option value="crunchyroll">crunchyroll</option>
+          </select>
+          <label>Lines</label>
+          <textarea id="genLines" rows="5" placeholder="email:pass"></textarea>
+          <button type="button" class="btn primary" id="btnGenAdd">Add gen stock</button>
+          <p id="genMsg"></p>
+        </div>
+      </section>
+
+      <section id="tab-methods" class="panel hidden">
+        <h2>Methods</h2>
+        <p class="hint">Unlimited text methods (set / clear). Used by bot commands.</p>
+        <div id="methodsOut"></div>
+      </section>
+
+      <section id="tab-giveaways" class="panel hidden">
+        <h2>Giveaways</h2>
+        <div class="toolbar">
+          <button type="button" class="btn" id="btnGwRefresh">Refresh</button>
+        </div>
+        <div id="gwOut" class="list"></div>
+      </section>
+
+      <section id="tab-warnings" class="panel hidden">
+        <h2>Warnings</h2>
+        <div class="toolbar">
+          <button type="button" class="btn" id="btnWarnRefresh">Refresh</button>
+        </div>
+        <div id="warnOut" class="list"></div>
+      </section>
+
+      <section id="tab-economy" class="panel hidden">
+        <h2>Economy</h2>
+        <div class="card form-card">
+          <label>User ID</label>
+          <input id="ecoUser" placeholder="Discord user id" />
+          <label>Coins</label>
+          <input id="ecoCoins" type="number" value="0" />
+          <button type="button" class="btn primary" id="btnEco">Save coins</button>
+          <p id="ecoMsg"></p>
+        </div>
+      </section>
+
+      
+      <section id="tab-protection" class="panel hidden">
+        <h2>Protection</h2>
+        <p class="hint">Saved in bot data (not env). Same as <code>-protection</code> in Discord.</p>
+        <div class="card form-card">
+          <div class="row toggles">
+            <label class="toggle"><input type="checkbox" id="protAutomod" /> Auto-mod (spam / filter / mass mention)</label>
+            <label class="toggle"><input type="checkbox" id="protAntinuke" /> Anti-nuke</label>
+            <label class="toggle"><input type="checkbox" id="protAntiraid" /> Anti-raid</label>
+          </div>
+          <label>Log channel ID</label>
+          <input id="protLog" type="text" placeholder="Channel ID for protection logs" />
+          <label>Spam: max messages</label>
+          <input id="protSpamCount" type="number" min="2" max="30" />
+          <label>Spam: window (seconds)</label>
+          <input id="protSpamSecs" type="number" min="1" max="60" />
+          <label>Join raid: max joins</label>
+          <input id="protJoinCount" type="number" min="3" max="50" />
+          <label>Join raid: window (seconds)</label>
+          <input id="protJoinSecs" type="number" min="5" max="120" />
+          <label>Nuke: max actions</label>
+          <input id="protNukeCount" type="number" min="2" max="20" />
+          <label>Nuke: window (seconds)</label>
+          <input id="protNukeSecs" type="number" min="5" max="120" />
+          <label>Bad words (comma-separated)</label>
+          <textarea id="protBadWords" rows="3" placeholder="word1, word2"></textarea>
+          <button type="button" class="btn primary" id="btnProtSave">Save protection</button>
+          <p id="protMsg" class="hint"></p>
+        </div>
+      </section>
+
+      <section id="tab-invites" class="panel hidden">
+        <h2>Invites</h2>
+        <p class="hint">Falcon-style tracking. Manage in Discord with <code>-i</code> / <code>-invites</code>.</p>
+        <div class="toolbar">
+          <button type="button" class="btn" id="btnInvitesRefresh">Refresh top</button>
+        </div>
+        <div class="card" id="invitesOut">Loading…</div>
+      </section>
+
+      <section id="tab-moderation" class="panel hidden">
+        <h2>Moderation</h2>
+        <p class="hint">Warnings list + quick notes. Use Discord for ban/kick/timeout.</p>
+        <div class="toolbar">
+          <button type="button" class="btn" id="btnModWarn">Refresh warnings</button>
+        </div>
+        <div class="card" id="modOut">Loading…</div>
+        <div class="card form-card">
+          <h3>Slash &amp; prefix cheat sheet</h3>
+          <ul class="cheats">
+            <li><code>-lock</code> / <code>/lock</code> — lock channel</li>
+            <li><code>-unlock</code> / <code>/unlock</code></li>
+            <li><code>/purge</code> — bulk delete</li>
+            <li><code>/slowmode</code> — slowmode</li>
+            <li><code>/nick</code> <code>/role</code> — nickname &amp; roles</li>
+            <li><code>-si</code> — server info</li>
+            <li><code>-leaderboard m</code> / <code>i</code> — message / invite LB</li>
+            <li><code>-rmi @user</code> — remove invites</li>
+          </ul>
+        </div>
+      </section>
+
+<section id="tab-settings" class="panel hidden">
+        <h2>Settings</h2>
+        <div class="card form-card">
+          <h3>Background blur</h3>
+          <input id="blur" type="number" min="0" max="12" step="0.1" value="1.2" />
+          <button type="button" class="btn" id="btnBlur">Apply blur</button>
+        </div>
+        <div class="card form-card">
+          <h3>Full export / import</h3>
+          <p class="hint">Downloads all bot data (stocks, methods, coins, warns, giveaways…).</p>
+          <button type="button" class="btn primary" id="btnExport">Download full export JSON</button>
+          <label>Import JSON file</label>
+          <input type="file" id="importFile" accept=".json,application/json" />
+          <button type="button" class="btn ghost" id="btnImport">Upload and apply</button>
+          <p id="backupMsg"></p>
+        </div>
+      </section>
+
+      <footer class="footer">
+        Flare Drop staff panel<br />
+        Not affiliated with Mojang, Minecraft, Microsoft, Netflix, or Discord.
+      </footer>
+    </main>
+  </div>
+  <script src="/app.js"></script>
+</body>
+</html>
